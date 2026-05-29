@@ -5,6 +5,7 @@ app.use(express.json()); // Parse JSON bodies
 let todos = [
   { id: 1, task: 'Learn Node.js', completed: false },
   { id: 2, task: 'Build CRUD API', completed: false },
+  {id: 3, task: 'Test API', completed: true}
 ];
 
 // GET All – Read
@@ -12,8 +13,26 @@ app.get('/todos', (req, res) => {
   res.status(200).json(todos); // Send array as JSON
 });
 
+// GET active – Read
+app.get('/todos/active', (req, res) => {
+  const activetodos = todos.filter((t) => !t.completed);
+  res.status(200).json(activetodos);
+});
+
+//GET One – Read
+app.get('/todos/:id', (req, res) => {
+  const singletodo = todos.find((t) => t.id === parseInt(req.params.id)); // Array.find() TO 
+  if (!singletodo) return res.status(404).json({ message: 'Todo not found' });
+  res.status(200).json(singletodo); // Send single object
+});
+
+
 // POST New – Create
 app.post('/todos', (req, res) => {
+  //validation: check for 'task' field
+  if (!req.body.task) {
+    return res.status(400).json({ error: 'Task is required' });
+  }
   const newTodo = { id: todos.length + 1, ...req.body }; // Auto-ID
   todos.push(newTodo);
   res.status(201).json(newTodo); // Echo back
